@@ -35,6 +35,26 @@ build-backend = "poetry.core.masonry.api"
 line-length = 120
 target-version = ['py312']
 
+[tool.mypy]
+python_version = "3.12"
+warn_unused_configs = true
+
+[[tool.mypy.overrides]]
+module = "attributedict.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "faker.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "boto3.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "botocore.*"
+ignore_missing_imports = true
+
 [tool.flake8]
 extend-ignore = 'E203'
 max-line-length = 120

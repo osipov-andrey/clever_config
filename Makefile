@@ -19,8 +19,8 @@ check-format:
 
 lint:
 	@echo "--- LINTING: mypy"
-	poetry run mypy --config-file=mypy.ini ./clever_config
-	poetry run mypy --config-file=mypy.ini --disable-error-code=import ./tests
+	poetry run mypy --config-file=pyproject.toml ./clever_config
+	poetry run mypy --config-file=pyproject.toml --disable-error-code=import ./tests
 
 fmt:
 	@echo "--- FORMATTING: isort"
