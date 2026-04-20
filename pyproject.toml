@@ -1,7 +1,7 @@
 [project]
 name = "clever_config"
 version = "3.2.4"
-description = "Free your application from wiring configuration data and secrets by hand—walk nested dict/list configs and resolve typed anchors in place (KMS, SSM, Secrets Manager, environment variables)."
+description = "Mark config values with typed anchors, resolve them all in one call. Pluggable backends for AWS KMS, SSM Parameter Store, Secrets Manager, and environment variables — with batching, defaults, and collected errors built in."
 readme = "README.md"
 license = { file = "LICENSE" }
 keywords = [
