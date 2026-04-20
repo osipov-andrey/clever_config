@@ -1,5 +1,7 @@
 # clever_config
 
+**Free your application from fetching configuration data and secrets by hand—delegate that to this library.**
+
 Walk nested **dict/list** configuration trees and **resolve typed anchors in place** — one traversal, pluggable resolvers for **AWS KMS**, **SSM Parameter Store**, **Secrets Manager**, and **environment variables**. Built for services that keep structure in code or YAML but want secrets and parameters injected at runtime without bespoke glue.
 
 ## Features
@@ -64,4 +66,4 @@ The workflow builds with `python -m build` (PEP 517 / `poetry-core`). To publish
 
 [MIT](LICENSE)
 
-Repository: [github.com/osipov-andrey/python_smart_config](https://github.com/osipov-andrey/python_smart_config)
+Repository: [github.com/osipov-andrey/clever_config](https://github.com/osipov-andrey/clever_config)

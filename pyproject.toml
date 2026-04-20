@@ -1,17 +1,46 @@
 [project]
 name = "clever_config"
-version = "3.2.3"
-description = "Tricky config with features"
-repository = "https://github.com/osipov-andrey/python_smart_config"
-authors = [
-    {name = "andrey.a.osipov", email = "developer.osipov@gmail.com"},
+version = "3.2.4"
+description = "Free your application from wiring configuration data and secrets by hand—walk nested dict/list configs and resolve typed anchors in place (KMS, SSM, Secrets Manager, environment variables)."
+readme = "README.md"
+license = { file = "LICENSE" }
+keywords = [
+    "config",
+    "configuration",
+    "aws",
+    "boto3",
+    "kms",
+    "ssm",
+    "parameter-store",
+    "secrets-manager",
+    "environment-variables",
 ]
-include = ["clever_config/py.typed"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: System :: Systems Administration",
+    "Typing :: Typed",
+]
+authors = [
+    { name = "Andrey Osipov", email = "developer.osipov@gmail.com" },
+]
 requires-python = ">=3.12,<4.0"
 dependencies = [
     "boto3 (~=1.40.2)",
     "requests (~=2.32.3)",
 ]
+
+[project.urls]
+Homepage = "https://github.com/osipov-andrey/clever_config"
+Repository = "https://github.com/osipov-andrey/clever_config"
+Issues = "https://github.com/osipov-andrey/clever_config/issues"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.2.2"
