@@ -35,7 +35,7 @@ config = {
 
 errors = dict_traversal(config, [KMSAction(), EnvLoaderAction()])
 # `config` is mutated: anchors become resolved strings (or structured values if an action deserializes JSON).
-# Non-fatal issues are collected in `errors`; overlapping action types in one call raise.
+# Issues of getting data are collected in `errors`; overlapping action types in one call raise.
 ```
 
 **Actions** (import from `clever_config.actions`): `KMSAction`, `SSMAction`, `PrefixSSMAction`, `ConventionalSSMAction`, `ConventionalAppSSMAction`, `SecretManagerAction`, `SecretManagerKeysAction`, `EnvLoaderAction`. See docstrings in [`clever_config/actions/aws.py`](clever_config/actions/aws.py) and [`clever_config/actions/env.py`](clever_config/actions/env.py) for AWS CLI hints and parameter naming.
@@ -49,6 +49,16 @@ make lint        # mypy
 make check-format
 make build       # poetry build
 ```
+
+## PyPI releases
+
+Publishing runs on **tag push** via [`.github/workflows/publish-pypi.yml`](.github/workflows/publish-pypi.yml) (tags like `v3.2.3` must match `[project].version` in `pyproject.toml` after stripping the leading `v`).
+
+1. Bump `version` in [`pyproject.toml`](pyproject.toml), merge to your default branch.
+2. Create and push an annotated or lightweight tag: `git tag vX.Y.Z && git push origin vX.Y.Z`.
+3. Configure **PyPI Trusted Publishing** for this repo and workflow (environment name **`pypi`**) — see [Adding a trusted publisher to your project](https://docs.pypi.org/trusted-publishers/adding-a-publisher/). Create the **`pypi`** environment under GitHub repo → Settings → Environments if you use protection rules.
+
+The workflow builds with `python -m build` (PEP 517 / `poetry-core`). To publish with an API token instead of OIDC, follow the comment at the top of the workflow file.
 
 ## License
 

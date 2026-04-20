@@ -1,6 +1,6 @@
 [project]
 name = "clever_config"
-version = "3.2.2"
+version = "3.2.3"
 description = "Tricky config with features"
 repository = "https://github.com/osipov-andrey/python_smart_config"
 authors = [

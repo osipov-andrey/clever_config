@@ -1,0 +1,69 @@
+# Publishes to PyPI when a version tag is pushed (e.g. v3.2.3).
+#
+# One-time PyPI setup (Trusted Publishing — no long-lived API token):
+#   https://docs.pypi.org/trusted-publishers/adding-a-publisher/
+#   - PyPI → your project → Publishing → "Add a pending publisher"
+#   - Owner: repo owner, Repository: this repo, Workflow: publish-pypi.yml,
+#     Environment name: pypi
+#   - GitHub → Settings → Environments → create "pypi" (optional protection rules)
+#
+# Alternative: use a PyPI API token — set repo secret PYPI_API_TOKEN and replace the
+# publish step with:
+#   uses: pypa/gh-action-pypi-publish@release/v1
+#   with:
+#     password: ${{ secrets.PYPI_API_TOKEN }}
+#   (and remove `id-token: write` from job permissions if you only use the token.)
+
+name: Publish to PyPI
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    name: Build and upload
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/p/clever_config
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Match tag to pyproject version
+        run: |
+          set -euo pipefail
+          TAG="${GITHUB_REF_NAME}"
+          case "$TAG" in v*) VERSION="${TAG#v}" ;; *)
+            echo "Tag must start with v (e.g. v3.2.3), got: $TAG"
+            exit 1
+            ;;
+          esac
+          PROJ_VERSION=$(python3 -c 'import tomllib; print(tomllib.load(open("pyproject.toml", "rb"))["project"]["version"])')
+          if [ "$VERSION" != "$PROJ_VERSION" ]; then
+            echo "Tag $TAG implies version $VERSION but pyproject.toml has $PROJ_VERSION"
+            exit 1
+          fi
+
+      - name: Install build
+        run: pip install --upgrade pip build
+
+      - name: Build sdist and wheel
+        run: python -m build
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          password: ${{ secrets.PYPI_API_TOKEN }}
