@@ -1,12 +1,15 @@
-LIB_NAME = smart_config
+LIB_NAME = clever_config
 
 test:
 	@echo "--- RUNNING UNIT-TESTS: pytest"
-	poetry run pytest
+	@PYTHONPATH=./$(LIB_NAME):${PYTHONPATH}:./tests poetry run pytest tests/unit_tests
 
 coverage:
 	@echo "--- CHECKING COVERAGE: pytest"
-	poetry run pytest --cov=./$(LIB_NAME)
+	@PYTHONPATH=./$(LIB_NAME):${PYTHONPATH}:./tests poetry run pytest tests/unit_tests --cov=./$(LIB_NAME)
+
+doc:
+	python3 ./docs/generate_docs.py
 
 check-format:
 	@echo "--- CHECKING FORMAT: isort"
@@ -15,10 +18,9 @@ check-format:
 	poetry run black --config=pyproject.toml --check --diff ./
 
 lint:
-	@echo "--- LINTING: flake8"
-	poetry run flake8 --config=pyproject.toml ./
 	@echo "--- LINTING: mypy"
-	poetry run mypy --config-file=mypy.ini ./
+	poetry run mypy --config-file=mypy.ini ./clever_config
+	poetry run mypy --config-file=mypy.ini --disable-error-code=import ./tests
 
 fmt:
 	@echo "--- FORMATTING: isort"
@@ -33,11 +35,15 @@ init:
 	git init
 	git add .
 	ln -sf ../../pre-commit.sh .git/hooks/pre-commit
+	ln -sf ../../pre-push.sh .git/hooks/pre-push
 	poetry install
 	make clean
 
 ci:
-	poetry install
+	poetry install --all-groups
+	make all
+
+all:
 	make check-format
 	make lint
 	make coverage

@@ -1,103 +1,77 @@
-from typing import Any, List, Tuple, Union
+from typing import Any, Callable
 
-from clever_config.actions import ActionException, BaseAction
+from clever_config.actions.base import (
+    ActionAnchor,
+    ActionException,
+    AnchorWithDefault,
+    BaseAction,
+    MissedValue,
+    get_anchor,
+)
+from clever_config.utils import change_value_in_mapping
 
-JSONTypes = Union[dict, list, str, int]
-PathList = List[Union[str, int]]
-CheckedCollection = Union[dict, list]
+JSONTypes = dict | list | str | int
+PathList = list[str | int]
+CheckedCollection = dict | list
+AnchorGetter = Callable[[Any], ActionAnchor | AnchorWithDefault | None]
 
 
-def dict_traversal(mapping: dict, actions: List[BaseAction]) -> List[str]:
-    # map(lambda action: action.__pre_traversal_hook__(mapping), actions)
-
-    for action in actions:
-        action.__pre_traversal_hook__(mapping)
-
-    queue: List[Tuple[PathList, CheckedCollection]] = [
-        ([], mapping),
-    ]
+def dict_traversal(mapping: dict, actions: list[BaseAction], anchor_getter: AnchorGetter = get_anchor) -> list[str]:
     errors = []
 
-    def _check_value(path_: PathList, checking_value: JSONTypes) -> None:
-        nonlocal queue
-        nonlocal errors
+    for action in actions:
+        errors.extend(action.__pre_traversal_hook__(mapping))
 
-        # CHECK DICT:
-        if _is_dict(checking_value):
-            queue.append((path_, checking_value))  # type: ignore
-            # Type already checked
-            return
-
-        # CHECK LIST:
-        elif _is_list(checking_value):
-            for index, _item in enumerate(checking_value):  # type: ignore
-                extended_path = _get_extended_path(path_, index)
-                # Type already checked
-                # CHECK STR IN LIST:
-                if not _is_str_or_digit(_item):
-                    queue.append((extended_path, _item))
-                    continue
-                _errors = _run_all_actions(extended_path, checking_value, actions)  # type: ignore
-                # Type already checked
-                errors.extend(_errors)
-            return
-
-        # CHECK STR OR INT
-        if _is_str_or_digit(checking_value):
-            _errors = _run_all_actions(path_, dict_or_list, actions)  # type: ignore
-            # Type already checked
-            errors.extend(_errors)
+    queue: list[tuple[PathList, CheckedCollection]] = [
+        ([], mapping),
+    ]
 
     for path, dict_or_list in queue:  # type: PathList, CheckedCollection
-        if _is_dict(dict_or_list):
-            for key_or_index, value in dict_or_list.items():  # type: ignore
-                # Type already checked
-                _check_value(_get_extended_path(path, key_or_index), value)
-        elif _is_list(dict_or_list):
+        if anchor := anchor_getter(dict_or_list):
+            _errors = _run_all_actions(mapping, path, anchor, actions)
+            errors.extend(_errors)
+        elif isinstance(dict_or_list, dict):
+            for key_or_index, value in dict_or_list.items():
+                queue.append((_get_extended_path(path, key_or_index), value))
+        elif isinstance(dict_or_list, list):
             for key_or_index, item in enumerate(dict_or_list):
-                _check_value(_get_extended_path(path, key_or_index), item)
+                queue.append((_get_extended_path(path, key_or_index), item))
 
     if not errors:
         for action in actions:
-            action.__post_traversal_hook__(mapping)
-        # map(lambda action: action.__post_traversal_hook__(mapping), actions)
+            errors.extend(action.__post_traversal_hook__(mapping))
+
     return errors
 
 
 def _run_all_actions(
+    mapping: dict,
     path: PathList,
-    dict_or_list: Union[dict, list],
-    actions: List[BaseAction],
+    anchor: ActionAnchor,
+    actions: list[BaseAction],
 ) -> list:
-
-    key_or_index: Union[str, int] = path[-1]
     errors: list = []
 
+    # check that actions have different types
+    action_types = [action.action_type for action in actions]
+    unique_action_types = set(action_types)
+    if len(action_types) != len(unique_action_types):
+        raise ActionException("Need unique action types for actions")
+
     for action in actions:  # type: BaseAction
-        value: Union[int, str] = dict_or_list[key_or_index]  # type: ignore
-        if isinstance(value, int):
-            return errors
         try:
-            dict_or_list[key_or_index] = action.conditionally_transform(path, value)  # type: ignore
-            # Here we combine dicts and lists
+            transformed_value = action.get_value(path, anchor)
         except ActionException as err:
             errors.append(str(err))
+        else:
+            if isinstance(transformed_value, MissedValue):
+                continue
+            change_value_in_mapping(mapping, transformed_value, path)
+
     return errors
 
 
-def _is_dict(obj: Any) -> bool:
-    return isinstance(obj, dict)
-
-
-def _is_list(obj: Any) -> bool:
-    return isinstance(obj, list)
-
-
-def _is_str_or_digit(obj: Any) -> bool:
-    return any((isinstance(obj, str), isinstance(obj, int)))
-
-
-def _get_extended_path(path_list: PathList, new_value: Union[str, int]) -> PathList:
+def _get_extended_path(path_list: PathList, new_value: str | int) -> PathList:
     new_path_list = list(path_list)
     new_path_list.append(new_value)
     return new_path_list

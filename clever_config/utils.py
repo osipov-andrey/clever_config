@@ -8,14 +8,14 @@ class IncompatiblePathAndMappingException(Exception):
 
 
 def change_value_in_mapping(mapping: dict, value: Any, path: List[KeyOrIndex]) -> None:
-    value_step: Union[dict, list] = mapping
-    for path_step in path:
+    if len(path) == 0:
+        pass
+    elif len(path) == 1:
+        mapping[path[0]] = value
+    else:
+        step = path[0]
+        rest_path = path[1:]
         try:
-            next_step = value_step[path_step]  # type: ignore
+            change_value_in_mapping(mapping[step], value, rest_path)
         except (KeyError, IndexError):
             raise IncompatiblePathAndMappingException(f"Wrong path: {path}")
-        if isinstance(next_step, dict) or isinstance(next_step, list):
-            value_step = next_step
-        else:
-            value_step[path_step] = value  # type: ignore
-            break

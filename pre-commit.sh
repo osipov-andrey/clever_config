@@ -6,6 +6,8 @@
 
 set -ex
 
-make ci
+make fmt
+make doc
+git add .
 
 ln -sf ../../pre-commit.sh .git/hooks/pre-commit

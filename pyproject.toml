@@ -1,20 +1,22 @@
-[tool.poetry]
+[project]
 name = "clever_config"
-version = "0.3.0"
+version = "3.2.2"
 description = "Tricky config with features"
 repository = "https://github.com/osipov-andrey/python_smart_config"
-authors = ["Andrey A. Osipov <developer.osipov@gmail.com>"]
+authors = [
+    {name = "andrey.a.osipov", email = "developer.osipov@gmail.com"},
+]
+include = ["clever_config/py.typed"]
+requires-python = ">=3.12,<4.0"
+dependencies = [
+    "boto3 (~=1.40.2)",
+    "requests (~=2.32.3)",
+]
 
-[tool.poetry.dependencies]
-python = "^3.8"
-attributedict = "^0.3.0"
-PyYAML = "^5.4.1"
-
-[tool.poetry.dev-dependencies]
-pytest = "^6.2.4"
-mypy = "^0.910"
-black = "^21.6b0"
-flake8 = "^=3.9.2"
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.2.2"
+PyYAML = "^6.0.1"
+mypy = "^0.981"
 pytest-sugar = "^0.9.4"
 pytest-clarity = "^1.0.1"
 pytest-coverage = "^0.0"
@@ -23,6 +25,7 @@ types-requests = "^2.25.0"
 flake8-absolute-import = "^1.0"
 Faker = "^8.10.1"
 types-PyYAML = "^5.4.3"
+black = "^23.3.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
@@ -30,9 +33,9 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.black]
 line-length = 120
-target-version = ['py38']
+target-version = ['py312']
 
-[flake8]
+[tool.flake8]
 extend-ignore = 'E203'
 max-line-length = 120
 count = true

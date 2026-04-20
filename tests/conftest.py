@@ -13,18 +13,18 @@ def config_file() -> Generator[Tuple[str, List[str]], None, None]:
     file_name = path_to_config.joinpath("config_test.yml")
 
     config_ = {
-        "f1": "ENV__VARIABLE_0",
+        "f1": {"type": "ENV", "value": "VARIABLE_0"},
         "f2": {
             "s1": ["foo", "bar"],
         },
-        "f3": {"s1": {"t1": "ENV__VARIABLE"}},
+        "f3": {"s1": {"t1": {"type": "ENV", "value": "VARIABLE"}}},
         "f4": {
             "s1": ["a", "", 42],
-            "s2": ["d", "f", "ENV__VARIABLE_2"],
+            "s2": ["d", "f", {"type": "Env", "value": "VARIABLE_2"}],
         },
         "f5": [
-            ["kek", "ENV__VARIABLE_3"],
-            {"t1": ["lol", "ENV__VARIABLE_4"]},
+            ["kek", {"type": "env", "value": "VARIABLE_3"}],
+            {"t1": ["lol", {"type": "ENV", "value": "VARIABLE_4"}]},
         ],
     }
     expected_vars = [
